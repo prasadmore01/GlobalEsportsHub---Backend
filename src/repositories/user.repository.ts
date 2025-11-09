@@ -83,6 +83,22 @@ class UserRepositoryClass extends BaseRepository<User> {
     }
 
     /**
+     * Check if UPI ID exists
+     */
+    async upiIdExists(upiId: string, excludeId?: number): Promise<boolean> {
+        const query = this.getRepository()
+            .createQueryBuilder("user")
+            .where("user.upi_id = :upiId", { upiId });
+
+        if (excludeId) {
+            query.andWhere("user.id != :excludeId", { excludeId });
+        }
+
+        const count = await query.getCount();
+        return count > 0;
+    }
+
+    /**
      * Check if UUID exists
      */
     async uuidExists(uuid: string, excludeId?: number): Promise<boolean> {
@@ -139,7 +155,7 @@ class UserRepositoryClass extends BaseRepository<User> {
                 page,
                 limit,
                 search,
-                searchFields: ['game_name', 'first_name', 'last_name', 'email'],
+                searchFields: ['first_name', 'last_name', 'email', 'whatsapp_number', 'upi_id'],
                 sortBy: 'created_at',
                 sortOrder: 'DESC'
             },

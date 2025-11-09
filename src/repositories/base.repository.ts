@@ -42,12 +42,21 @@ export class BaseRepository<T extends ObjectLiteral> {
         } = options;
 
         const skip = (page - 1) * limit;
-        const where: any = { ...additionalWhere };
 
         // Apply search filter if search text and fields are provided
+        let where: FindOptionsWhere<T> | FindOptionsWhere<T>[];
+
         if (search && searchFields.length > 0) {
-            where[searchFields[0]] = ILike(`%${search}%`);
+            // Create an array of where conditions, one for each search field
+            where = searchFields.map(field => ({
+                ...additionalWhere,
+                [field]: ILike(`%${search}%`)
+            })) as FindOptionsWhere<T>[];
+        } else {
+            where = additionalWhere;
         }
+
+        console.log("where", where);
 
         const [data, total] = await this.repository.findAndCount({
             where,
@@ -82,6 +91,7 @@ export class BaseRepository<T extends ObjectLiteral> {
      * Find one by condition
      */
     async findOne(where: FindOptionsWhere<T>): Promise<T | null> {
+        console.log("where", where);
         return await this.repository.findOne({ where });
     }
 

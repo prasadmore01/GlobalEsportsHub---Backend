@@ -98,7 +98,7 @@ const asyncHandler = ExceptionFilter.asyncHandler;
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by game name, first name, last name, or email
+ *         description: Search by first name, last name, email, whatsapp number, or UPI ID
  *     responses:
  *       200:
  *         description: List of users
@@ -220,7 +220,7 @@ router.post("/bulk-delete", asyncHandler(userController.bulkDeleteUsers.bind(use
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -246,7 +246,7 @@ router.patch("/:id", validationMiddleware(UpdateUserDto), asyncHandler(userContr
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: User deleted successfully
@@ -266,7 +266,7 @@ router.delete("/:id", asyncHandler(userController.deleteUser.bind(userController
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: User permanently deleted
@@ -286,7 +286,7 @@ router.delete("/:id/permanent", asyncHandler(userController.permanentDeleteUser.
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: User restored successfully

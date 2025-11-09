@@ -26,6 +26,7 @@ export class UserController {
 
         return res.status(200).json({
             success: true,
+            message: "Users fetched successfully",
             ...result
         });
     }
@@ -37,7 +38,7 @@ export class UserController {
     async getUserById(req: Request, res: Response) {
         const { id } = req.params;
 
-        if (!id || isNaN(Number(id))) {
+        if (!id) {
             throw new BadRequestException("Invalid user ID");
         }
 
@@ -49,6 +50,7 @@ export class UserController {
 
         return res.status(200).json({
             success: true,
+            message: "User fetched successfully",
             data: user
         });
     }
@@ -67,6 +69,7 @@ export class UserController {
 
         return res.status(200).json({
             success: true,
+            message: "User fetched successfully",
             data: user
         });
     }
@@ -94,6 +97,11 @@ export class UserController {
             throw new ConflictException("Whatsapp number already exists");
         }
 
+        //Check if UPI ID already exists
+        if (userData.upi_id && await UserRepository.upiIdExists(userData.upi_id)) {
+            throw new ConflictException("UPI ID already exists");
+        }
+
         const user = await UserRepository.create(userData);
 
         return res.status(201).json({
@@ -111,11 +119,11 @@ export class UserController {
         const { id } = req.params;
         const updateData: UpdateUserDto = req.body;
 
-        if (!id || isNaN(Number(id))) {
+        if (!id) {
             throw new BadRequestException("Invalid user ID");
         }
 
-        const user = await UserRepository.findById(Number(id));
+        const user = await UserRepository.findByUuid(id);
 
         if (!user || user.is_deleted) {
             throw new NotFoundException("User not found");
@@ -123,12 +131,26 @@ export class UserController {
 
         // Check email uniqueness if updating email
         if (updateData.email && updateData.email !== user.email) {
-            if (await UserRepository.emailExists(updateData.email, Number(id))) {
+            if (await UserRepository.emailExists(updateData.email, user.id)) {
                 throw new ConflictException("Email already exists");
             }
         }
 
-        const updatedUser = await UserRepository.update(Number(id), updateData);
+        //Check if UPI ID already exists
+        if (updateData.upi_id && updateData.upi_id !== user.upi_id) {
+            if (await UserRepository.upiIdExists(updateData.upi_id, user.id)) {
+                throw new ConflictException("UPI ID already exists");
+            }
+        }
+
+        //Check if whatsapp number already exists
+        if (updateData.whatsapp_number && updateData.whatsapp_number !== user.whatsapp_number) {
+            if (await UserRepository.whatsappNumberExists(updateData.whatsapp_number, user.id)) {
+                throw new ConflictException("Whatsapp number already exists");
+            }
+        }
+
+        const updatedUser = await UserRepository.update(user.id, updateData);
 
         return res.status(200).json({
             success: true,
@@ -144,17 +166,20 @@ export class UserController {
     async deleteUser(req: Request, res: Response) {
         const { id } = req.params;
 
-        if (!id || isNaN(Number(id))) {
+        if (!id) {
             throw new BadRequestException("Invalid user ID");
         }
 
-        const user = await UserRepository.findById(Number(id));
+        const user = await UserRepository.findByUuid(id);
 
         if (!user || user.is_deleted) {
             throw new NotFoundException("User not found");
         }
 
-        await UserRepository.softDelete(Number(id));
+        const result = await UserRepository.softDelete(user.id);
+        if (result) {
+            await UserRepository.update(user.id, { is_deleted: true });
+        }
 
         return res.status(200).json({
             success: true,
@@ -169,17 +194,17 @@ export class UserController {
     async permanentDeleteUser(req: Request, res: Response) {
         const { id } = req.params;
 
-        if (!id || isNaN(Number(id))) {
+        if (!id) {
             throw new BadRequestException("Invalid user ID");
         }
 
-        const user = await UserRepository.findById(Number(id));
+        const user = await UserRepository.findByUuid(id);
 
         if (!user) {
             throw new NotFoundException("User not found");
         }
 
-        await UserRepository.delete(Number(id));
+        await UserRepository.delete(user.id);
 
         return res.status(200).json({
             success: true,
@@ -194,22 +219,20 @@ export class UserController {
     async restoreUser(req: Request, res: Response) {
         const { id } = req.params;
 
-        if (!id || isNaN(Number(id))) {
+        if (!id) {
             throw new BadRequestException("Invalid user ID");
         }
 
-        await UserRepository.restore(Number(id));
 
-        const user = await UserRepository.findById(Number(id));
+        const result = await UserRepository.restore(Number(id));
 
-        if (!user) {
-            throw new NotFoundException("User not found after restore");
+        if (result) {
+            await UserRepository.update(Number(id), { is_deleted: false });
         }
 
         return res.status(200).json({
             success: true,
             message: "User restored successfully",
-            data: user
         });
     }
 
