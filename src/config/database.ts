@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import { User } from "../entities/user.entity";
+import { Tournament } from "../entities/tournament.entity";
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -10,6 +11,6 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    entities: [User],
+    entities: [User, Tournament],
     synchronize: true,
 });

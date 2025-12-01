@@ -56,7 +56,6 @@ export class BaseRepository<T extends ObjectLiteral> {
             where = additionalWhere;
         }
 
-        console.log("where", where);
 
         const [data, total] = await this.repository.findAndCount({
             where,
@@ -91,7 +90,6 @@ export class BaseRepository<T extends ObjectLiteral> {
      * Find one by condition
      */
     async findOne(where: FindOptionsWhere<T>): Promise<T | null> {
-        console.log("where", where);
         return await this.repository.findOne({ where });
     }
 
