@@ -7,6 +7,7 @@ import { swaggerOptions } from "./swagger/swagger.config";
 import userRoutes from "./routes/user.routes";
 import tournamentRoutes from "./routes/tournament.routes";
 import { ExceptionFilter } from "./exceptions/ExceptionFilter";
+import employeeRoutes from "./routes/employee.routes";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/tournaments", tournamentRoutes);
+app.use("/api/employees", employeeRoutes);
 
 // 404 Handler - Must be after all routes
 app.use(ExceptionFilter.notFoundHandler);
