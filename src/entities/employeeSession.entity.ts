@@ -9,8 +9,8 @@ import {
 } from "typeorm";
 
 
-@Entity("sessions")
-export class Session {
+@Entity("employee_sessions")
+export class EmployeeSession {
 
     @PrimaryGeneratedColumn()
     id: number; // Auto-increment integer ID
@@ -20,7 +20,7 @@ export class Session {
     uuid: string; // Auto-generated unique UUID
 
     @Column({ nullable: true })
-    user_id?: string;
+    employee_id?: string;
 
     @Column({ nullable: true })
     token?: string;

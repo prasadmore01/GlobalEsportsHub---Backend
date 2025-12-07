@@ -1,6 +1,6 @@
 // src/filters/ExceptionFilter.ts
 import { Request, Response, NextFunction } from "express";
-import { HttpException } from "../exceptions/CustomExceptions";
+import { HttpException, InternalServerException } from "../exceptions/CustomExceptions";
 import { QueryFailedError } from "typeorm";
 
 interface ErrorResponse {
@@ -177,10 +177,23 @@ export class ExceptionFilter {
 
     /**
      * Async error wrapper for route handlers
+     * Automatically wraps non-HttpException errors in InternalServerException
      */
     static asyncHandler(fn: Function) {
         return (req: Request, res: Response, next: NextFunction) => {
-            Promise.resolve(fn(req, res, next)).catch(next);
+            Promise.resolve(fn(req, res, next)).catch((err: Error) => {
+                // If it's already an HttpException, pass it through
+                if (err instanceof HttpException) {
+                    return next(err);
+                }
+                // Otherwise, wrap it in InternalServerException
+                // Preserve original error message in development mode
+                const isDevelopment = process.env.NODE_ENV === "development";
+                const message = isDevelopment && err.message
+                    ? `Internal Server Error: ${err.message}`
+                    : "Internal Server Error";
+                next(new InternalServerException(message));
+            });
         };
     }
 }

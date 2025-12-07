@@ -44,9 +44,20 @@ class EmployeeRepositoryClass extends BaseRepository<Employee> {
      */
     async findByEmailWithPassword(email: string): Promise<Employee | null> {
         return await this.getRepository()
-            .createQueryBuilder("user")
-            .addSelect("user.password")
-            .where("user.email = :email", { email })
+            .createQueryBuilder("employee")
+            .addSelect("employee.password")
+            .where("employee.email = :email", { email })
+            .getOne();
+    }
+
+    /**
+  * Get employee by email or mobile number with password (for authentication)
+  */
+    async findByEmailOrMobileNumberWithPassword(email: string, mobileNumber: string): Promise<Employee | null> {
+        return await this.getRepository()
+            .createQueryBuilder("employee")
+            .addSelect("employee.password")
+            .where("employee.email = :email OR employee.whatsapp_number = :mobileNumber", { email, mobileNumber })
             .getOne();
     }
 
@@ -55,11 +66,27 @@ class EmployeeRepositoryClass extends BaseRepository<Employee> {
      */
     async emailExists(email: string, excludeId?: number): Promise<boolean> {
         const query = this.getRepository()
-            .createQueryBuilder("user")
-            .where("user.email = :email", { email });
+            .createQueryBuilder("employee")
+            .where("employee.email = :email", { email });
 
         if (excludeId) {
-            query.andWhere("user.id != :excludeId", { excludeId });
+            query.andWhere("employee.id != :excludeId", { excludeId });
+        }
+
+        const count = await query.getCount();
+        return count > 0;
+    }
+
+    /**
+     * Check if email or mobile number exists
+     */
+    async emailOrMobileNumberExists(email: string, mobileNumber: string, excludeId?: number): Promise<boolean> {
+        const query = this.getRepository()
+            .createQueryBuilder("employee")
+            .where("employee.email = :email OR employee.whatsapp_number = :mobileNumber", { email, mobileNumber });
+
+        if (excludeId) {
+            query.andWhere("employee.id != :excludeId", { excludeId });
         }
 
         const count = await query.getCount();
@@ -71,27 +98,11 @@ class EmployeeRepositoryClass extends BaseRepository<Employee> {
      */
     async whatsappNumberExists(whatsappNumber: string, excludeId?: number): Promise<boolean> {
         const query = this.getRepository()
-            .createQueryBuilder("user")
-            .where("user.whatsapp_number = :whatsappNumber", { whatsappNumber });
+            .createQueryBuilder("employee")
+            .where("employee.whatsapp_number = :whatsappNumber", { whatsappNumber });
 
         if (excludeId) {
-            query.andWhere("user.id != :excludeId", { excludeId });
-        }
-
-        const count = await query.getCount();
-        return count > 0;
-    }
-
-    /**
-     * Check if UPI ID exists
-     */
-    async upiIdExists(upiId: string, excludeId?: number): Promise<boolean> {
-        const query = this.getRepository()
-            .createQueryBuilder("user")
-            .where("user.upi_id = :upiId", { upiId });
-
-        if (excludeId) {
-            query.andWhere("user.id != :excludeId", { excludeId });
+            query.andWhere("employee.id != :excludeId", { excludeId });
         }
 
         const count = await query.getCount();
@@ -103,11 +114,11 @@ class EmployeeRepositoryClass extends BaseRepository<Employee> {
      */
     async uuidExists(uuid: string, excludeId?: number): Promise<boolean> {
         const query = this.getRepository()
-            .createQueryBuilder("user")
-            .where("user.uuid = :uuid", { uuid });
+            .createQueryBuilder("employee")
+            .where("employee.uuid = :uuid", { uuid });
 
         if (excludeId) {
-            query.andWhere("user.id != :excludeId", { excludeId });
+            query.andWhere("employee.id != :excludeId", { excludeId });
         }
 
         const count = await query.getCount();

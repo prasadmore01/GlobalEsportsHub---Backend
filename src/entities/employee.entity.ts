@@ -8,11 +8,17 @@ import {
     Generated
 } from "typeorm";
 
-export enum UserStatus {
+export enum EmployeeStatus {
     ACTIVE = "ACTIVE",
     INACTIVE = "INACTIVE",
     SUSPENDED = "SUSPENDED",
     BAN = "BAN"
+}
+
+export enum EmployeeRole {
+    ADMIN = "ADMIN",
+    MANAGER = "MANAGER",
+    STAFF = "STAFF"
 }
 
 @Entity("employees")
@@ -77,14 +83,14 @@ export class Employee {
     updated_by?: string;
 
     @Column({ nullable: true })
-    role?: string;
+    role?: EmployeeRole;
 
     @Column({
         type: "enum",
-        enum: UserStatus,
-        default: UserStatus.ACTIVE
+        enum: EmployeeStatus,
+        default: EmployeeStatus.ACTIVE
     })
-    status?: UserStatus;
+    status?: EmployeeStatus;
 
     @Column({ nullable: true })
     is_verified?: boolean;

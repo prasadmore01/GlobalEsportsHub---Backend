@@ -64,6 +64,97 @@ const asyncHandler = ExceptionFilter.asyncHandler;
 
 /**
  * @swagger
+ * /api/employees/login:
+ *   post:
+ *     summary: Login an employee
+ *     tags: [Employees]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               mobile_number:
+ *                 type: string
+ *               password:
+ *                 type: string
+
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Employee not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post("/login", asyncHandler(employeeController.login.bind(employeeController)));
+
+
+/**
+ * @swagger
+ * /api/employees/register:
+ *   post:
+ *     summary: Register a new employee
+ *     tags: [Employees]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               whatsapp_number:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               confirm_password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, SUSPENDED, BAN]
+ *     responses:
+ *       201:
+ *         description: Employee created successfully
+ *       400:
+ *         description: Bad request
+ *       409:
+ *         description: Conflict (duplicate email/whatsapp number)
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/register", validationMiddleware(CreateEmployeeDto), asyncHandler(employeeController.register.bind(employeeController)));
+
+/**
+ * @swagger
+ * /api/employees/logout:
+ *   post:
+ *     summary: Logout an employee
+ *     tags: [Employees]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Employee logged out successfully
+ */
+
+router.post("/logout", asyncHandler(employeeController.logout.bind(employeeController)));
+
+/**
+ * @swagger
  * /api/employees:
  *   get:
  *     summary: Get all employees
@@ -164,6 +255,9 @@ router.get("/uuid/:uuid", asyncHandler(employeeController.getEmployeeByUuid.bind
  *                 type: string
  *               role:
  *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, SUSPENDED, BAN]
  *     responses:
  *       201:
  *         description: Employee created successfully

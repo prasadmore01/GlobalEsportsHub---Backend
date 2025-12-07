@@ -8,7 +8,8 @@ import {
     MinLength,
     Matches
 } from "class-validator";
-import { UserStatus } from "../entities/user.entity";
+import { EmployeeRole, EmployeeStatus } from "../entities/employee.entity";
+
 
 export class CreateEmployeeDto {
     @IsOptional()
@@ -33,16 +34,21 @@ export class CreateEmployeeDto {
     password?: string;
 
     @IsOptional()
+    @IsString({ message: "confirm_password should be string" })
+    @MinLength(6, { message: "confirm_password should be at least 6 characters" })
+    confirm_password?: string;
+
+    @IsOptional()
     @IsString({ message: "profile_picture should be string" })
     profile_picture?: string;
 
     @IsOptional()
-    @IsString({ message: "role should be string" })
-    role?: string;
+    @IsEnum(EmployeeRole, { message: "role should be one of: ADMIN, MANAGER, STAFF" })
+    role?: EmployeeRole;
 
     @IsOptional()
-    @IsEnum(UserStatus, { message: "status should be one of: ACTIVE, INACTIVE, SUSPENDED, BAN" })
-    status?: UserStatus;
+    @IsEnum(EmployeeStatus, { message: "status should be one of: ACTIVE, INACTIVE, SUSPENDED, BAN" })
+    status?: EmployeeStatus;
 
 }
 
@@ -78,12 +84,12 @@ export class UpdateEmployeeDto {
     is_active?: boolean;
 
     @IsOptional()
-    @IsString({ message: "role should be string" })
-    role?: string;
+    @IsEnum(EmployeeRole, { message: "role should be one of: ADMIN, MANAGER, STAFF" })
+    role?: EmployeeRole;
 
     @IsOptional()
-    @IsEnum(UserStatus, { message: "status should be one of: ACTIVE, INACTIVE, SUSPENDED, BAN" })
-    status?: UserStatus;
+    @IsEnum(EmployeeStatus, { message: "status should be one of: ACTIVE, INACTIVE, SUSPENDED, BAN" })
+    status?: EmployeeStatus;
 
 
     @IsOptional()
@@ -94,7 +100,7 @@ export class UpdateEmployeeDto {
 export interface EmployeeQueryDto {
     page?: number;
     limit?: number;
-    status?: UserStatus;
+    status?: EmployeeStatus;
     is_active?: boolean;
     search?: string;
 }   

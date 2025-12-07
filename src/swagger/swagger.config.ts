@@ -15,6 +15,21 @@ export const swaggerOptions = swaggerJSDoc({
                 url: `${process.env.BASE_URL || "http://localhost:9000"}`,
                 description: "Local Server"
             }
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                    description: "Enter your JWT token"
+                }
+            }
+        },
+        security: [
+            {
+                bearerAuth: []
+            }
         ]
     },
     apis: ["./src/routes/*.ts", "./src/controllers/*.ts", "./src/entities/*.ts"], // where swagger reads documentation
